@@ -1,0 +1,92 @@
+\chapter{研究方案及可行性分析}
+
+\section{总体研究思路}
+\placeholder{给出数据获取、正射/拼接、标注、模型训练与推理、尺度分析、结构识别、表型提取、跨域验证的完整流程。}
+
+\section{总体技术路线}
+\figureplaceholder{总体技术路线图占位：建议后续替换为 PPT/TikZ 绘制的矢量技术路线图}
+
+\section{数据来源与试验设计}
+\subsection{试验区域与作物材料}
+\placeholder{填写试验区位置、品种、种植模式、行距/株距、播期、苗期阶段等。}
+
+\subsection{无人机平台与成像参数}
+\placeholder{填写 RGB/多光谱平台、传感器、飞行高度、GSD、航向/旁向重叠度、光照条件和航线设计。}
+
+\subsection{样本构建与数据划分}
+\placeholder{说明影像切片、标注规范、训练/验证/测试划分原则，尤其避免同一地块相邻影像泄漏到不同集合。}
+
+\section{任务一研究方法与实验方案}
+\subsection{多高度逐株目标检测}
+\placeholder{写明基线模型、尺度适配、小目标特征增强、切片/多尺度训练或推理策略。}
+
+\subsection{计数与高度敏感性分析}
+\placeholder{除 mAP 外，应给出计数 MAE/RMSE/MAPE、召回率及不同飞行高度下的变化。}
+
+\section{任务二研究方法与实验方案}
+\subsection{作物行提取}
+\placeholder{说明传统几何/图像方法与深度学习方法如何设置基线，以及如何利用大小行农艺结构而非假设等间距。}
+
+\subsection{断行与缺苗区域识别}
+\placeholder{定义“断行/缺苗”的空间尺度与判定标准，说明从行中心线、连续性或局部密度到缺苗片段的推断方法。}
+
+\section{任务三研究方法与实验方案}
+\subsection{单株冠层实例分割}
+\placeholder{说明实例分割模型、边界质量、遮挡条件与尺度影响。}
+
+\subsection{影像表型提取与可靠性验证}
+\placeholder{优先冠层投影面积、长宽、圆度/紧致度、覆盖率等二维可验证指标，并给出人工测量或高分辨率参考的验证方案。}
+
+\section{任务四研究方法与实验方案}
+\subsection{跨域设置}
+\placeholder{明确源域/目标域：例如春玉米→夏玉米、区域 A→区域 B、不同土壤背景/品种/年份。}
+
+\subsection{泛化与迁移评价}
+\placeholder{设置“直接迁移、少样本微调、域适应/域泛化”等层级，报告性能下降幅度与恢复幅度。}
+
+\section{评价指标与统计分析}
+\begin{table}[htbp]
+  \centering
+  \caption{建议评价指标体系（模板）}
+  \begin{tabular}{p{0.20\textwidth}p{0.61\textwidth}}
+    \toprule
+    研究任务 & 建议指标 \\
+    \midrule
+    逐株检测与计数 & Precision、Recall、AP$_{50}$、AP$_{50:95}$、MAE、RMSE、MAPE \\
+    行/断行识别 & 行定位误差、Precision/Recall/F1、IoU、断行定位误差或长度误差 \\
+    实例分割/表型 & Mask AP、IoU、Dice；冠层面积等表型的 $R^2$、RMSE、MAE \\
+    跨域泛化 & 源域性能、目标域性能、相对性能下降、少样本适配增益 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{主要仪器设备、软件与数据条件}
+\begin{longtable}{p{0.20\textwidth}p{0.28\textwidth}p{0.38\textwidth}}
+\caption{主要研究条件（模板）}\\
+\toprule
+类别 & 名称/型号 & 用途 \\
+\midrule
+\endfirsthead
+\toprule
+类别 & 名称/型号 & 用途 \\
+\midrule
+\endhead
+无人机平台 & \placeholder{填写} & 低空与中高空影像获取 \\
+成像传感器 & \placeholder{RGB/多光谱型号} & 苗期遥感成像 \\
+计算设备 & \placeholder{GPU/服务器配置} & 模型训练、推理与影像处理 \\
+软件环境 & ODM、Python、PyTorch、GIS 等 & 正射拼接、模型开发与空间分析 \\
+\bottomrule
+\end{longtable}
+
+\section{可行性分析}
+\subsection{数据基础可行性}
+\placeholder{说明现有 12 m 等已标注数据、拟补充高度与区域数据，以及标注规模。}
+
+\subsection{技术基础可行性}
+\placeholder{说明已有检测/分割/遥感处理基础和可复用开源框架。}
+
+\subsection{试验条件可行性}
+\placeholder{说明飞行平台、试验田、计算资源与数据存储条件。}
+
+\subsection{风险与备选方案}
+\placeholder{列出天气、光照、不同高度 GSD、跨域性能下降等风险以及替代设计。}

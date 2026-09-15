@@ -1,0 +1,162 @@
+% ============================================================
+% 开题报告专用格式设置
+% 正文主体沿用 nwafuthesis 的章、节、正文、图表与页眉页脚体系。
+% ============================================================
+
+\graphicspath{{figs/}}
+
+% 学位层次显示文字：由 settings/degree.tex 的 doctor/master 自动决定
+\newcommand{\ReportDegreeName}{\ifReportDoctor 博士\else 硕士\fi}
+
+% 占位提示：交稿前建议删除或替换。
+\newcommand{\placeholder}[1]{%
+  {\color{gray}\small\emph{[待填写：#1]}}%
+}
+
+% 固定宽度的封面填写线
+\newcommand{\coverline}[2][135pt]{%
+  \makebox[#1][c]{\raisebox{0.15ex}{\rule{#1}{0.35pt}}}%
+  \hspace{-#1}\makebox[#1][c]{#2}%
+}
+
+% 图示占位框
+\newcommand{\figureplaceholder}[2][0.88\textwidth]{%
+  \begin{figure}[htbp]
+    \centering
+    \fbox{\parbox[c][5.0cm][c]{#1}{\centering\color{gray}#2}}
+    \caption{#2}
+  \end{figure}
+}
+
+% 正文页眉：根据硕/博选择自动切换。
+\newcommand{\setreportheader}{%
+  \nwafuhead[C]{%
+    \small
+    \ifodd\value{page}
+      \nouppercase{\leftmark}%
+    \else
+      西北农林科技大学\ReportDegreeName 研究生开题报告%
+    \fi
+  }%
+  \nwafufoot[C]{\small\thepage}%
+}
+
+
+% --- 封面：字体/字号取自原 Word，坐标取自用户提供的 Word 导出 PDF ---
+% 原始 PDF: A4 595.32 x 841.92 pt；以下坐标均采用 PDF 左上角为原点的 pt 值。
+% 字体与字号（来自 Word OOXML）：
+%   附件1：等线 Light，14 pt（Word 中为粗体）
+%   校名/学位论文/开题报告：宋体，18 pt
+%   题目标签：黑体，22 pt
+%   下部字段与日期：宋体，15 pt
+% 英文/数字：Times New Roman。
+%
+% Windows + XeLaTeX 可直接使用上述系统字体。非 Windows 环境自动回退，
+% 但若追求 1:1，请在安装有 SimSun/SimHei/DengXian/Times New Roman 的环境编译。
+
+% --- 封面字体 ---
+\IfFileExists{settings/cover-fonts-local.tex}{%
+  % 仅用于本地视觉核对，不随模板分发字体文件。
+  \input{settings/cover-fonts-local.tex}%
+}{%
+  \IfFontExistsTF{SimSun}{\newCJKfontfamily\CoverSong{SimSun}}{\newCJKfontfamily\CoverSong{Noto Serif CJK SC}}
+  \IfFontExistsTF{SimHei}{\newCJKfontfamily\CoverHei{SimHei}}{\newCJKfontfamily\CoverHei{Noto Sans CJK SC}}
+  \IfFontExistsTF{DengXian Light}{\newCJKfontfamily\CoverDeng{DengXian Light}}{%
+    \IfFontExistsTF{DengXian}{\newCJKfontfamily\CoverDeng{DengXian}}{\newCJKfontfamily\CoverDeng{Noto Sans CJK SC}}%
+  }
+  \IfFontExistsTF{DengXian Light}{\newfontfamily\CoverDengAll{DengXian Light}}{%
+    \IfFontExistsTF{DengXian}{\newfontfamily\CoverDengAll{DengXian}}{\newfontfamily\CoverDengAll{Noto Sans CJK SC}}%
+  }
+  \IfFontExistsTF{Times New Roman}{\newfontfamily\CoverTNR{Times New Roman}}{\newfontfamily\CoverTNR{Liberation Serif}}
+}
+
+% PDF 坐标 -> TikZ current page 坐标的辅助宏。
+\newcommand{\pdfbasewest}[4]{%
+  \node[anchor=base west,inner sep=0pt,outer sep=0pt] at
+    ([xshift=#1bp,yshift=-#2bp]current page.north west) {#4};%
+}
+\newcommand{\pdfbasecenter}[4]{%
+  \node[anchor=base,inner sep=0pt,outer sep=0pt] at
+    ([xshift=#1bp,yshift=-#2bp]current page.north west) {#4};%
+}
+\newcommand{\pdffillrect}[4]{%
+  \fill ([xshift=#1bp,yshift=-#2bp]current page.north west)
+        rectangle ([xshift=#3bp,yshift=-#4bp]current page.north west);%
+}
+\newcommand{\pdfglyph}[5]{%
+  \node[anchor=base west,inner sep=0pt,outer sep=0pt] at
+    ([xshift=#1bp,yshift=-#2bp]current page.north west)
+    {{#3\fontsize{#4bp}{#4bp}\selectfont #5}};%
+}
+
+% 一页式正式封面。静态文本位置严格取自 PDF 文字 baseline / vector line 坐标。
+\newcommand{\makeopeningcover}{%
+  \clearpage
+  \thispagestyle{empty}
+  \begingroup
+  \xeCJKsetup{PunctStyle=plain}
+  \begin{tikzpicture}[remember picture,overlay]
+    % ---------- 静态文字 ----------
+    % 所有静态字符均按用户 PDF 的逐字符 origin 坐标放置，避免 CJK 标点压缩造成偏移。
+    \input{settings/cover-static-measured.tex}
+
+    % ---------- 学位层次行（硕/博可选，整体重新居中） ----------
+    % 原 Word 的“博士（硕士）”为二选一占位。选择后将“年级线 + 级 + 学位层次 + 研究生学位论文”
+    % 作为一个整体保持在 A4 页面水平中心。
+    \pdffillrect{180.620}{189.620}{234.764}{190.460}
+    \pdfglyph{234.770}{187.700}{\CoverSong}{18}{级}
+    \ifReportDoctor
+      \pdfglyph{252.770}{187.700}{\CoverSong}{18}{博}
+    \else
+      \pdfglyph{252.770}{187.700}{\CoverSong}{18}{硕}
+    \fi
+    \pdfglyph{270.770}{187.700}{\CoverSong}{18}{士}
+    \pdfglyph{288.770}{187.700}{\CoverSong}{18}{研}
+    \pdfglyph{306.770}{187.700}{\CoverSong}{18}{究}
+    \pdfglyph{324.770}{187.700}{\CoverSong}{18}{生}
+    \pdfglyph{342.770}{187.700}{\CoverSong}{18}{学}
+    \pdfglyph{360.770}{187.700}{\CoverSong}{18}{位}
+    \pdfglyph{378.770}{187.700}{\CoverSong}{18}{论}
+    \pdfglyph{396.770}{187.700}{\CoverSong}{18}{文}
+
+    % ---------- PDF 中其余 7 条实线（按 vector rect 精确坐标） ----------
+    % 学院、学科、姓名学号、导师、组长、成员两行
+    \pdffillrect{296.690}{440.350}{476.740}{441.070}
+    \pdffillrect{323.350}{471.550}{480.930}{472.270}
+    \pdffillrect{296.690}{502.750}{476.860}{503.470}
+    \pdffillrect{289.130}{533.950}{476.740}{534.670}
+    \pdffillrect{304.130}{565.150}{476.740}{565.870}
+    \pdffillrect{304.130}{596.350}{476.740}{597.070}
+    \pdffillrect{304.130}{627.580}{476.740}{628.300}
+
+    % ---------- 可填写内容 ----------
+    % 年级：居中放在线上方
+    \pdfbasecenter{207.692}{187.700}{}{{\CoverTNR\fontsize{18bp}{18bp}\selectfont \ReportGrade}}
+
+    % 题目：原 Word 只给标签，不画横线。填写时在标签右侧区域居中。
+    \node[anchor=base,inner sep=0pt,outer sep=0pt,text width=285bp,align=center]
+      at ([xshift=414bp,yshift=-306.770bp]current page.north west)
+      {{\CoverSong\fontsize{15bp}{18bp}\selectfont \ReportTitle}};
+    \node[anchor=base,inner sep=0pt,outer sep=0pt,text width=240bp,align=center]
+      at ([xshift=427bp,yshift=-337.970bp]current page.north west)
+      {{\CoverTNR\fontsize{13bp}{15bp}\selectfont \ReportTitleEN}};
+
+    % 信息填写值：以每条线的中心位置对齐
+    \pdfbasecenter{386.715}{438.650}{}{{\CoverSong\fontsize{15bp}{15bp}\selectfont \ReportDepartment}}
+    \pdfbasecenter{402.140}{469.870}{}{{\CoverSong\fontsize{15bp}{15bp}\selectfont \ReportDiscipline}}
+    \pdfbasecenter{386.775}{501.070}{}{{\CoverSong\fontsize{15bp}{15bp}\selectfont \ReportStudent\quad{\CoverTNR\ReportStudentID}}}
+    \pdfbasecenter{382.935}{532.270}{}{{\CoverSong\fontsize{15bp}{15bp}\selectfont \ReportSupervisor}}
+    \pdfbasecenter{390.435}{563.470}{}{{\CoverSong\fontsize{15bp}{15bp}\selectfont \ReportGroupLeader}}
+    \pdfbasecenter{390.435}{594.670}{}{{\CoverSong\fontsize{15bp}{15bp}\selectfont \ReportGroupMembers}}
+
+    % 日期填写值：中心点来自 PDF 中“年/月/日”前的空白区
+    \pdfbasecenter{341.640}{703.300}{}{{\CoverTNR\fontsize{15bp}{15bp}\selectfont \ReportDefenseYear}}
+    \pdfbasecenter{386.590}{703.300}{}{{\CoverTNR\fontsize{15bp}{15bp}\selectfont \ReportDefenseMonth}}
+    \pdfbasecenter{431.605}{703.300}{}{{\CoverTNR\fontsize{15bp}{15bp}\selectfont \ReportDefenseDay}}
+  \end{tikzpicture}
+  \endgroup
+  \null\newpage
+}
+
+% 新 PDF 已将开题论证小组成员与日期合并到同一封面页，因此不再生成第二页。
+\newcommand{\makeopeningapproval}{}
