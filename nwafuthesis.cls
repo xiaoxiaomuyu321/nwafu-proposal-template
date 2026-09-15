@@ -3496,78 +3496,80 @@
   }
 \cs_new_protected:Npn \__nwafu_biblatex_pre_setup:
   {
-    \__nwafu_pass_options_to_biblatex:n { style = gb7714-NWAFU }
-    % \__nwafu_pass_options_to_biblatex:n
-    %   {
-    %     backend = biber,
-    %     sortlocale=zh__pinyin, gbtype=false,
-    %     maxbibnames=99, maxcitenames=2, mincitenames=1,
-    %     gbpub=false, uniquename=false, uniquelist=false,
-        % gbnamefmt=lowercase,
-    %     doi=false, isbn=false,
-    %     gbfieldtype=true, gbpunctin=false,
-      % }
+    % 开题报告采用常规作者-年份制，不使用 GB/T 7714 数字制/国标样式。
+    % 参考文献使用统一排序：中文在前、英文在后；各组内按作者/机构→年份→题名排序。
+    \__nwafu_pass_options_to_biblatex:n
+      {
+        backend = biber,
+        hyperref = manual,
+        style = authoryear,
+        sorting = none,
+        sortcites = true,
+        maxcitenames = 2,
+        mincitenames = 1,
+        maxbibnames = 99,
+        giveninits = true,
+        uniquename = false,
+        uniquelist = false,
+        dashed = false,
+        isbn = false
+      }
   }
 \cs_new_protected:Npn \__nwafu_biblatex_post_setup:
   {
+    % 参考文献统一在一个 bibliography 环境中输出，避免中文组/英文组之间产生额外空白。
+    % 排序：langid（chinese 在 english 前） -> 作者/机构 -> 年份 -> 题名。
+    \DeclareSortingTemplate{nwafu}
+      {
+        \sort{\field{langid}}
+        \sort{\field{sortkey}}
+        \sort{
+          \field{sortname}
+          \field{author}
+          \field{editor}
+          \field{translator}
+        }
+        \sort{\field{sortyear}\field{year}}
+        \sort{\field{sorttitle}\field{title}}
+        \sort{\field{volume}\literal{0}}
+      }
+    \ExecuteBibliographyOptions{sorting=nwafu}
     \clist_map_function:NN \l__nwafu_bib_resource_clist \addbibresource
     \defbibheading { bibliography } [ \bibname ] { \__nwafu_chapter:n {##1} }
-    \renewcommand{\bibfont}{\zihao{5}}
-    \DefineBibliographyExtras{english}{%
-      \renewcommand*{\bibrangedash}{%
-        \iffieldequalstr{userd}{chinese}%
-        {%
-          \c__nwafu_fwid_tilde_tl%$\sim$
-        }{%
-          \textendash\penalty\hyphenpenalty
-        }
-      }
-    }
-    \def\gbcaselocalset{%
-      \renewrobustcmd*{\bibinitperiod}{}%
-      \renewcommand*{\revsdnamepunct}{}%
-      %\renewrobustcmd*{\bibinitdelim}{}%
-    }
+    \renewcommand{\bibfont}{\zihao{5}\normalfont\mdseries}
 
-    \renewbibmacro*{name:family-given}[4]{%
-      \gbcaselocalset%
-      \ifuseprefix{%
-        \usebibmacro{name:delim}{##3##1}%
-        \usebibmacro{name:hook}{##3##1}%
-        \mkbibcompletenamefamilygiven{%
-          \ifdefvoid{##3}{}
-          {%
-            \ifcapital
-              {\mkbibnameprefix{\MakeCapital{##3}}\isdot}
-              {\mkbibnameprefix{##3}\isdot}%
-            \ifprefchar{}{\bibnamedelimc}
-          }%
-          \mkbibnamefamily{##1}\isdot
-          \ifdefvoid{##4}{}
-          {\bibnamedelimd\mkbibnamesuffix{##4}\isdot}%
-          \ifdefvoid{##2}{}
-          {\revsdnamepunct\bibnamedelimd\mkbibnamegiven{##2}\isdot}
-        }
-      }{%
-        \usebibmacro{name:delim}{##1}%
-        \usebibmacro{name:hook}{##1}%
-        \mkbibcompletenamefamilygiven{%
-          \mkbibnamefamily{##1}\isdot
-          \ifdefvoid{##4}{}
-            {\bibnamedelimd\mkbibnamesuffix{##4}\isdot}%
-          \ifboolexpe{%
-            test {\ifdefvoid{##2}}
-            and
-            test {\ifdefvoid{##3}}
-          }{}
-          {\revsdnamepunct}%
-          \ifdefvoid{##2}{}
-            {\bibnamedelimd\mkbibnamegiven{##2}\isdot}%
-          \ifdefvoid{##3}{}
-            {\bibnamedelimd\mkbibnameprefix{##3}\isdot}
-        }
-      }
+    % 正文采用作者-年份制。普通文末引用统一用 \parencite，
+    % 输出为 (Author, Year)；多篇文献在同一对括号内按作者排序。
+    \DeclareDelimFormat{nameyeardelim}{\addcomma\space}
+    \DeclareDelimFormat{multicitedelim}{\addsemicolon\space}
+
+    % ---------------- 参考文献纯常规字形 ----------------
+    % authoryear 默认会对期刊名/会议名/部分题名施加强调字形；
+    % 学校开题报告这里统一使用常规字形，不使用粗体，也不使用斜体强调。
+    % 参考文献条目统一常规字形：作者、年份、题名、期刊/会议名、卷期、DOI/URL
+    % 均不使用粗体或斜体；仅“参考文献”章标题沿用正文模板的章标题格式。
+    \DeclareFieldFormat{title}{##1}
+    \DeclareFieldFormat[article]{title}{##1}
+    \DeclareFieldFormat[inproceedings]{title}{##1}
+    \DeclareFieldFormat[online]{title}{##1}
+    \DeclareFieldFormat{journaltitle}{##1}
+    \DeclareFieldFormat{booktitle}{##1}
+    \DeclareFieldFormat{maintitle}{##1}
+    \DeclareFieldFormat{series}{##1}
+    \AtEveryBibitem{%
+      \normalfont\mdseries
+      \clearfield{month}%
+      \clearfield{day}%
     }
+    \AtBeginBibliography
+      {
+        \renewcommand*{\mkbibbold}[1]{##1}
+        \renewcommand*{\mkbibemph}[1]{##1}
+        \normalfont\mdseries
+        \raggedright
+        \setlength{\emergencystretch}{2em}
+        \Urlmuskip=0mu plus 1mu
+      }
   }
 \cs_new_protected:Npn \__nwafu_pass_options_to_biblatex:n #1
   { \PassOptionsToPackage {#1} { biblatex } }
@@ -3648,7 +3650,7 @@
     hyperlink / color  .code:n =
       { \nwafu_hyperref_setup:n { colorlinks = true } },
     hyperlink / none   .code:n =
-      { \nwafu_hyperref_setup:n { hidelinks  = true } },
+      { \nwafu_hyperref_setup:n { hidelinks } },
     hyperlink-color .choice:,
     hyperlink-color .value_required:n = true,
     \clist_map_function:nN

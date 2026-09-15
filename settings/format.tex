@@ -1,0 +1,427 @@
+% ============================================================
+% 开题报告专用格式设置
+% 正文主体沿用 nwafuthesis 的章、节、正文、图表与页眉页脚体系。
+%
+% 封面实现原则：
+% 1. Word/PDF 只用于确定字体、字号、页面分区、块间距、缩进与横线长度；
+% 2. LaTeX 采用正常段落、居中、minipage、makebox、underline 等结构化排版；
+% 3. 不逐字符绝对定位，不使用逐字坐标复刻。
+% ============================================================
+
+\graphicspath{{figs/}}
+
+% 学位层次显示文字：由 settings/degree.tex 的 doctor/master 自动决定
+\newcommand{\ReportDegreeName}{\ifReportDoctor 博士\else 硕士\fi}
+
+% 占位提示：交稿前建议删除或替换。
+\newcommand{\placeholder}[1]{%
+  {\color{gray}\small\emph{[待填写：#1]}}%
+}
+
+% 图示占位框
+\newcommand{\figureplaceholder}[2][0.88\textwidth]{%
+  \begin{figure}[htbp]
+    \centering
+    \fbox{\parbox[c][5.0cm][c]{#1}{\centering\color{gray}#2}}
+    \caption{#2}
+  \end{figure}
+}
+
+% 正文页眉：根据硕/博选择自动切换。
+\newcommand{\setreportheader}{%
+  \nwafuhead[C]{%
+    \small
+    \ifodd\value{page}
+      \nouppercase{\leftmark}%
+    \else
+      西北农林科技大学\ReportDegreeName 研究生开题报告%
+    \fi
+  }%
+  \nwafufoot[C]{\small\thepage}%
+}
+
+% ============================================================
+% 封面字体
+% 字体/字号依据原 Word：
+%   附件 1：等线 Light 14 pt
+%   校名、学位论文、开题报告：宋体 18 pt
+%   题目标签：黑体 22 pt
+%   信息字段与日期：宋体 15 pt
+%   英文/数字：Times New Roman
+% ============================================================
+% Windows 下优先使用原 Word 对应字体；其他系统使用可稳定编译的开源回退字体。
+% 用字体文件是否存在来判断，避免 Linux/fontconfig 将 SimSun 等名称错误映射为替代字体。
+\IfFileExists{C:/Windows/Fonts/simsun.ttc}
+  {\newCJKfontfamily\CoverSong{SimSun}}
+  {\newCJKfontfamily\CoverSong{Noto Serif CJK SC}}
+\IfFileExists{C:/Windows/Fonts/simhei.ttf}
+  {\newCJKfontfamily\CoverHei{SimHei}}
+  {\newCJKfontfamily\CoverHei{Noto Sans CJK SC}}
+\IfFileExists{C:/Windows/Fonts/Dengl.ttf}
+  {\newCJKfontfamily\CoverDeng{DengXian Light}}
+  {\newCJKfontfamily\CoverDeng{Noto Sans CJK SC}}
+\IfFileExists{C:/Windows/Fonts/times.ttf}
+  {\newfontfamily\CoverTNR{Times New Roman}}
+  {\newfontfamily\CoverTNR{Liberation Serif}}
+
+% ============================================================
+% 封面结构化组件
+% ============================================================
+
+% 下划线填写框：正常 LaTeX 行内排版，不使用绝对坐标。
+\newcommand{\CoverFillLine}[2][100bp]{%
+  \underline{\makebox[#1][c]{#2}}%
+}
+
+% 中英文题目统一题目块。
+% 原 Word 中“题目（居中）：”“英文题目（居中）：”只是空白模板的填写提示。
+% 因此：
+%   - 对应题目为空时：显示提示文字；
+%   - 对应题目填写后：提示文字自动消失，题目占据整行标题区并居中；
+%   - 长题目使用 minipage 正常自动换行，每一行保持居中；
+%   - 中英文题目宽度统一受 Word 左/右 90 bp 页边距约束；
+%   - 不使用 makebox 承载长题目，避免横向溢出。
+% 封面页边距按原 Word 的页面设置统一约束：左/右各 1.25 in = 90 bp。
+% 题目只允许在这一正文版心宽度内排版，不能进入页边距。
+\newlength{\CoverPageMargin}
+\newlength{\CoverTitleTextWidth}
+\newlength{\CoverChineseTitleBlockWidth}
+\newlength{\CoverEnglishTitleBlockWidth}
+\newlength{\CoverTitleRegionHeight}
+\setlength{\CoverPageMargin}{90bp}
+\setlength{\CoverTitleTextWidth}{\dimexpr\paperwidth-2\CoverPageMargin\relax}
+\setlength{\CoverChineseTitleBlockWidth}{\CoverTitleTextWidth}
+\setlength{\CoverEnglishTitleBlockWidth}{\CoverTitleTextWidth}
+% 题目区向上扩展 40bp，用于容纳 Word 中 22pt、1.5 倍行距的长标题。
+% “题目区前置间距 + 题目区高度”的总和保持不变，因此基本信息区的位置不会变化。
+\setlength{\CoverTitleRegionHeight}{170.6bp}
+
+% 空白模板中的中文题目提示
+\newcommand{\CoverChineseTitlePrompt}{%
+  \noindent\hspace*{120bp}%
+  {\CoverHei\fontsize{22bp}{33bp}\selectfont 题目（居中）：}\par
+}
+
+% 空白模板中的英文题目提示
+\newcommand{\CoverEnglishTitlePrompt}{%
+  \noindent\hspace*{120bp}%
+  {\CoverHei\fontsize{22bp}{33bp}\selectfont 英文题目（居中）：}\par
+}
+
+% 已填写的中英文题目放在同一个“固定高度题目区”中。
+%
+% 行距规则：
+%   1. 中文题目自身换行：22 bp 字号，行距按填写后的 Word 实际基线间距微调；
+%   2. 英文题目自身换行：22 bp 字号、24 bp 固定基线距离，与 Word 填写效果一致；
+%   3. 中文题目与英文题目之间保留独立段间距，且不影响后续基本信息位置；
+%   4. 题目区总高度仍固定为 \CoverTitleRegionHeight，
+%      因此无论题目是一行还是多行，都不会推动后面的基本信息区。
+\newlength{\CoverChineseTitleLeading}
+\newlength{\CoverEnglishTitleLeading}
+\newlength{\CoverBilingualTitleGap}
+% 封面标题行距独立于论文正文的全局行距设置。
+% 填写后的 Word/PDF 实测：中文两行基线约 31.2bp，英文约 24bp。
+\setlength{\CoverChineseTitleLeading}{31.2bp}
+\setlength{\CoverEnglishTitleLeading}{24bp}
+\setlength{\CoverBilingualTitleGap}{16bp}
+
+\newcommand{\CoverFilledBilingualTitles}{%
+  \vbox to \CoverTitleRegionHeight{%
+    \vss
+    \vspace*{-35bp}% 视觉上移，但不改变固定题目区总高度
+
+    % ---------------- 中文题目 ----------------
+    \ifdefempty{\ReportTitle}{}{%
+      \noindent\makebox[\paperwidth][c]{%
+        \begin{minipage}{\CoverChineseTitleBlockWidth}%
+          \centering
+          \linespread{1}\selectfont\CoverHei\fontsize{22bp}{\CoverChineseTitleLeading}\selectfont
+          \setlength{\parskip}{0pt}%
+          \setlength{\emergencystretch}{2em}%
+          \sloppy
+          \ReportTitle\par
+        \end{minipage}%
+      }\par
+    }%
+
+    % ---------------- 中英文题目之间 ----------------
+    % 只有中、英文题目都已填写时才加入该间距。
+    % 题间距由独立参数控制。
+    \ifboolexpr{
+      not test {\ifdefempty{\ReportTitle}}
+      and
+      not test {\ifdefempty{\ReportTitleEN}}
+    }{%
+      \vspace*{\CoverBilingualTitleGap}%
+    }{}%
+
+    % ---------------- 英文题目 ----------------
+    \ifdefempty{\ReportTitleEN}{}{%
+      \noindent\makebox[\paperwidth][c]{%
+        \begin{minipage}{\CoverEnglishTitleBlockWidth}%
+          \centering
+          \linespread{1}\selectfont\CoverTNR\fontsize{22bp}{\CoverEnglishTitleLeading}\selectfont
+          \setlength{\parskip}{0pt}%
+          \setlength{\emergencystretch}{3em}%
+          \sloppy
+          \ReportTitleEN\par
+        \end{minipage}%
+      }\par
+    }%
+
+    \vss
+  }%
+}
+
+% 中文 + 英文统一组件，并且总高度固定。
+% - 两项都为空：保留原 Word 的“题目（居中）：/英文题目（居中）：”提示位置；
+% - 任一题目填写：提示文字消失，题目在固定区域内居中排版；
+% - 固定区域结束后直接进入基本信息区，所以基本信息不会被长题目下推。
+\newcommand{\CoverBilingualTitleBlock}{%
+  \ifboolexpr{ test {\ifdefempty{\ReportTitle}} and test {\ifdefempty{\ReportTitleEN}} }
+    {%
+      \vbox to \CoverTitleRegionHeight{%
+        % 题目区本身向上扩展了 40bp；空白提示仍保持在原来的填写位置。
+        \vspace*{40bp}%
+        \CoverChineseTitlePrompt
+        \vspace*{9.2bp}%
+        \CoverEnglishTitlePrompt
+        \vfil
+      }%
+    }%
+    {\CoverFilledBilingualTitles}%
+}
+
+% ----------------------------------------------------------------
+% 基本信息区：统一两列网格
+%
+% 目标：
+%   1. 六行标签使用同一个左边界、同一个右边界；
+%   2. 短标签通过 \hfil 在“语义块”之间自动拉伸，形成类似 Word
+%      “分散对齐”的效果，而不是手工给每个字塞不同空格；
+%   3. 所有填写横线从同一位置开始，并保持完全相同的长度；
+%   4. 信息内容仍然是正常 LaTeX 流式排版，不做绝对坐标定位。
+% ----------------------------------------------------------------
+\newlength{\CoverInfoLeftIndent}
+\newlength{\CoverInfoLabelWidth}
+\newlength{\CoverInfoGap}
+\newlength{\CoverInfoLineWidth}
+
+% 保持横线起点接近原 PDF（约 304.2 bp），同时给最长标签留足宽度。
+\setlength{\CoverInfoLeftIndent}{139.7bp}
+\setlength{\CoverInfoLabelWidth}{157bp}
+\setlength{\CoverInfoGap}{7.5bp}
+\setlength{\CoverInfoLineWidth}{172.6bp}
+
+% 标签文字的“分散对齐”：在相邻字符之间加入可伸缩胶，
+% 使不同字数的标签都能同时贴齐同一个左边界和右边界。
+% 这是正常盒模型排版，不是逐字绝对定位。
+\ExplSyntaxOn
+\NewDocumentCommand{\CoverDistributedText}{m}
+  {
+    \bool_set_true:N \l_tmpa_bool
+    \tl_map_inline:nn {#1}
+      {
+        \bool_if:NTF \l_tmpa_bool
+          { \bool_set_false:N \l_tmpa_bool }
+          { \hfil }
+        ##1
+      }
+  }
+\ExplSyntaxOff
+
+% 标签盒：固定宽度 + 字符分散对齐。
+\newcommand{\CoverInfoLabelBox}[1]{%
+  \hbox to \CoverInfoLabelWidth{{\CoverSong\fontsize{15bp}{18bp}\selectfont
+    \CoverDistributedText{#1}}}%
+}
+
+% 信息栏专用填写线：所有行强制使用同一长度。
+\newcommand{\CoverInfoValueLine}[1]{%
+  {\CoverSong\fontsize{15bp}{18bp}\selectfont
+   \CoverFillLine[\CoverInfoLineWidth]{#1}}%
+}
+
+% 统一信息行：标签列 + 固定间距 + 等长填写线。
+\newcommand{\CoverInfoRow}[2]{%
+  \noindent\hspace*{\CoverInfoLeftIndent}%
+  \CoverInfoLabelBox{#1}%
+  \hspace*{\CoverInfoGap}%
+  \CoverInfoValueLine{#2}%
+}
+
+% ----------------------------------------------------------------
+% 开题论证小组成员：由用户手工决定换行
+%
+% 使用方式：
+%   \newcommand{\ReportGroupMembers}{%
+%     张三 李四 王五\\
+%     赵六 孙七 周八%
+%   }
+%
+% 规则：
+%   1. 用 \\ 明确指定在哪里换到下一条横线；
+%   2. 每一行都在等长横线上居中；
+%   3. 至少保留两条成员填写线（与原 Word 一致）；
+%   4. 如需第 3、4 行，继续写 \\ 即可；
+%   5. 模板不再依据姓名长度自动改变你的分行决定。
+% ----------------------------------------------------------------
+\ExplSyntaxOn
+% 同一行不同姓名之间的固定间距。
+% 用户只需要输入普通空格；模板会把一个或多个空格归一为一个不可断开的标准空格。
+\newcommand{\MemberSep}{\nobreakspace}
+
+\seq_new:N \l__nwafu_member_manual_lines_seq
+\seq_new:N \l__nwafu_member_manual_raw_lines_seq
+\tl_new:N  \l__nwafu_member_manual_source_tl
+\tl_new:N  \l__nwafu_member_manual_line_tl
+\int_new:N \l__nwafu_member_manual_line_count_int
+
+% 将用户填写内容完整展开后：
+% 1. 只以显式的 \\ 为换行分隔符；
+% 2. 每一行内部，一个或多个普通空格自动替换为 \MemberSep；
+% 3. 行首、行尾空格自动去除。
+\cs_new_protected:Npn \__nwafu_member_manual_build:n #1
+  {
+    \seq_clear:N \l__nwafu_member_manual_lines_seq
+    \seq_clear:N \l__nwafu_member_manual_raw_lines_seq
+    \tl_set:Nx \l__nwafu_member_manual_source_tl {#1}
+    \seq_set_split:NnV \l__nwafu_member_manual_raw_lines_seq { \\ } \l__nwafu_member_manual_source_tl
+
+    \seq_map_inline:Nn \l__nwafu_member_manual_raw_lines_seq
+      {
+        \tl_set:Nn \l__nwafu_member_manual_line_tl {##1}
+        \tl_trim_spaces:N \l__nwafu_member_manual_line_tl
+        % 连续空格也只作为一个“姓名分隔符”，显示为一个标准空格。
+        \regex_replace_all:nnN { \s+ } { \c{MemberSep} } \l__nwafu_member_manual_line_tl
+        \seq_put_right:NV \l__nwafu_member_manual_lines_seq \l__nwafu_member_manual_line_tl
+      }
+
+    % 原 Word 默认预留两行；不足两行时自动补空行。
+    \int_set:Nn \l__nwafu_member_manual_line_count_int
+      { \seq_count:N \l__nwafu_member_manual_lines_seq }
+    \int_while_do:nn { \l__nwafu_member_manual_line_count_int < 2 }
+      {
+        \seq_put_right:Nn \l__nwafu_member_manual_lines_seq { }
+        \int_incr:N \l__nwafu_member_manual_line_count_int
+      }
+  }
+
+% 输出每一条“等长横线 + 居中姓名”。
+% 日期的位置是固定的，因此成员行数较多时，只压缩成员行之间的垂直间距，
+% 不再把日期区向下推。手工 \ 仍然只决定“在哪里换行”。
+\dim_new:N \l__nwafu_member_manual_gap_dim
+\cs_new_protected:Npn \__nwafu_member_manual_typeset:
+  {
+    \int_set:Nn \l__nwafu_member_manual_line_count_int
+      { \seq_count:N \l__nwafu_member_manual_lines_seq }
+    \int_case:nnF { \l__nwafu_member_manual_line_count_int }
+      {
+        {1}{\dim_set:Nn \l__nwafu_member_manual_gap_dim {13.8bp}}
+        {2}{\dim_set:Nn \l__nwafu_member_manual_gap_dim {13.8bp}}
+        {3}{\dim_set:Nn \l__nwafu_member_manual_gap_dim {8.0bp}}
+        {4}{\dim_set:Nn \l__nwafu_member_manual_gap_dim {3.0bp}}
+      }
+      {\dim_set:Nn \l__nwafu_member_manual_gap_dim {1.0bp}}
+    \seq_map_indexed_inline:Nn \l__nwafu_member_manual_lines_seq
+      {
+        \CoverInfoValueLine{##2}\par
+        \int_compare:nNnF {##1} = { \seq_count:N \l__nwafu_member_manual_lines_seq }
+          { \vspace*{\l__nwafu_member_manual_gap_dim} }
+      }
+  }
+
+\NewDocumentCommand{\CoverGroupMembersBlock}{m}
+  {
+    \__nwafu_member_manual_build:n {#1}
+    \noindent\hspace*{\CoverInfoLeftIndent}%
+    \begin{minipage}[t]{\CoverInfoLabelWidth}
+      \CoverInfoLabelBox{开题论证小组成员姓名}%
+    \end{minipage}%
+    \hspace*{\CoverInfoGap}%
+    \begin{minipage}[t]{\CoverInfoLineWidth}
+      \__nwafu_member_manual_typeset:
+    \end{minipage}%
+  }
+\ExplSyntaxOff
+
+% 日期行内容。日期块的页面位置在 \makeopeningcover 中固定，
+% 因而不会受题目行数或成员行数影响。
+\newcommand{\CoverDateContent}{%
+  {\CoverSong\fontsize{15bp}{18bp}\selectfont
+    研究生通过开题论证日期：%
+    \hspace{5.4bp}\CoverFillLine[20bp]{{\CoverTNR\ReportDefenseYear}}年%
+    \hspace{5.4bp}\CoverFillLine[20bp]{{\CoverTNR\ReportDefenseMonth}}月%
+    \hspace{5.4bp}\CoverFillLine[20bp]{{\CoverTNR\ReportDefenseDay}}日%
+  }%
+}
+
+% ============================================================
+% 一页式封面
+% 只按“排版块”复现：整体缩进、行高、块间距和横线宽度来自 PDF 测量，
+% 文字本身仍由 LaTeX 正常组版，不进行逐字符定位。
+% ============================================================
+\newcommand{\makeopeningcover}{%
+  \clearpage
+  % 封面临时使用整页版心。geometry 的切换必须发生在局部分组之外：
+  % 这样封面中的普通 LaTeX 排版才真正以纸张左边界为基准，
+  % 同时也能在封面结束后可靠恢复论文模板的目录/正文版心。
+  \newgeometry{left=0pt,right=0pt,top=0pt,bottom=0pt}%
+  \begingroup
+  \thispagestyle{empty}%
+  \setlength{\parindent}{0pt}%
+  \setlength{\parskip}{0pt}%
+  \xeCJKsetup{PunctStyle=plain}%
+
+  % 附件 1
+  \vspace*{61.4bp}%
+  \noindent\hspace*{90bp}%
+  {\CoverDeng\bfseries\fontsize{14bp}{14bp}\selectfont 附件 1}\par
+
+  % 顶部标题区
+  \vspace*{43.7bp}%
+  \noindent\makebox[\paperwidth][c]{{\CoverSong\fontsize{18bp}{18bp}\selectfont 西北农林科技大学}}\par
+  \vspace*{11.3bp}%
+  \noindent\makebox[\paperwidth][c]{{\CoverSong\fontsize{18bp}{18bp}\selectfont
+    \CoverFillLine[54bp]{{\CoverTNR\ReportGrade}}级\ReportDegreeName 研究生学位论文}}\par
+  \vspace*{11.3bp}%
+  \noindent\makebox[\paperwidth][c]{{\CoverSong\fontsize{18bp}{18bp}\selectfont 开题报告}}\par
+
+  % 题目区
+  \vspace*{62.3bp}%
+  \CoverBilingualTitleBlock
+  \vspace*{11.0bp}%
+
+  % 基本信息区：题目区总高度已经固定，直接进入信息区。
+  \CoverInfoRow{学院（系、所）}{\ReportDepartment}\par
+  \vspace*{11.3bp}%
+  \CoverInfoRow{一级学科/类别（领域）}{\ReportDiscipline}\par
+  \vspace*{11.3bp}%
+  \CoverInfoRow{研究生姓名及学号}{\ReportStudent\quad{\CoverTNR\ReportStudentID}}\par
+  \vspace*{11.3bp}%
+  \CoverInfoRow{指导教师姓名}{\ReportSupervisor}\par
+  \vspace*{11.3bp}%
+  \CoverInfoRow{开题论证小组组长姓名}{\ReportGroupLeader}\par
+  \vspace*{11.3bp}%
+  % 成员姓名只按用户写入的 \ 手工换行；普通空格仅分隔姓名；至少保留两条等长填写线。
+  \CoverGroupMembersBlock{\ReportGroupMembers}\par
+
+  % 日期区采用“区块级固定锚点”：只固定整行日期的位置，
+  % 不是逐字坐标。这样长题目、多人名单都不会改变日期位置。
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north west,inner sep=0pt]
+      at ([xshift=146.7bp,yshift=-738.0bp]current page.north west)
+      {\CoverDateContent};
+  \end{tikzpicture}%
+
+  % 注意：\restoregeometry 不能放在上面的局部分组中。
+  % 否则分组结束后，geometry 的页面参数可能重新退回封面的 0 边距，
+  % 从而使目录/正文的可用高度异常增大，造成目录项越过页底。
+  \endgroup
+  \clearpage
+  % 在局部分组之外恢复 nwafuthesis 类预先设置的论文版心。
+  % doctor/master 对应的版心参数由类文件统一管理，目录与正文不再另行覆盖。
+  \restoregeometry
+}
+
+\newcommand{\makeopeningapproval}{}

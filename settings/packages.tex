@@ -2,12 +2,16 @@
 \usepackage{tikz}
 \usepackage{booktabs}
 \usepackage{array}
+% 表格定宽列：左对齐，避免窄列强制两端对齐造成异常字间距。
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{longtable}
 \usepackage{multirow}
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage{cleveref}
+% 长 URL/DOI 允许在更多位置自然断行，防止参考文献越过右页边距。
+\usepackage{xurl}
 \usepackage{siunitx}
+
+\usepackage{etoolbox}
