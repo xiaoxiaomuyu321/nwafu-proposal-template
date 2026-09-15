@@ -7,7 +7,7 @@
 - 英文组内部按作者姓氏 → 年份 → 题名排序。
 - 参考文献条目全部使用常规字形，不对期刊名、会议名、题名等使用粗体/斜体强调。
 - 使用 `xurl` 允许 URL/DOI 在更多位置断行，避免长网址越过右页边距。
-- 编译推荐：`latexmk -xelatex main.tex`；或 `xelatex -> biber -> xelatex -> xelatex`。
+- 编译推荐：`latexmk -xelatex main.tex`；手动编译时顺序为 `xelatex -> biber -> xelatex`。
 
 新增中文文献时，请在 BibTeX 条目中加入：
 
