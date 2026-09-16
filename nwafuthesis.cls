@@ -3496,7 +3496,7 @@
   }
 \cs_new_protected:Npn \__nwafu_biblatex_pre_setup:
   {
-    % 开题报告采用常规作者-年份制，不使用 GB/T 7714 数字制/国标样式。
+    % 使用著者--出版年制；作者截断按 GB/T 7714--2025 第 7.1.2、9.3.1.2 条设置。
     % 参考文献使用统一排序：中文在前、英文在后；各组内按作者/机构→年份→题名排序。
     \__nwafu_pass_options_to_biblatex:n
       {
@@ -3505,9 +3505,11 @@
         style = authoryear,
         sorting = none,
         sortcites = true,
-        maxcitenames = 2,
+        maxcitenames = 1,
+        useprefix = true,
         mincitenames = 1,
-        maxbibnames = 99,
+        maxbibnames = 3,
+        minbibnames = 3,
         giveninits = true,
         uniquename = false,
         uniquelist = false,
@@ -3542,6 +3544,28 @@
     % 输出为 (Author, Year)；多篇文献在同一对括号内按作者排序。
     \DeclareDelimFormat{nameyeardelim}{\addcomma\space}
     \DeclareDelimFormat{multicitedelim}{\addsemicolon\space}
+    % Chinese personal names are joined with Chinese commas, not English 'and'.
+    % Up to three authors: print all; four or more: first three + 等 / et al.
+    \DeclareDelimFormat{multinamedelim}{%
+      \iffieldequalstr{langid}{chinese}{\printtext{，}}{\addcomma\space}%
+    }
+    \DeclareDelimFormat{finalnamedelim}{%
+      \iffieldequalstr{langid}{chinese}{\printtext{，}}{\addspace\bibstring{and}\space}%
+    }
+    % Localize the shortened author list by each entry's langid, not by the
+    % document's global locale. Chinese publications: 张三等; English: Smith et al.
+    \renewbibmacro*{name:andothers}{%
+      \ifboolexpr{
+        test {\ifnumequal{\value{listcount}}{\value{liststop}}}
+        and test \ifmorenames
+      }{%
+        \iffieldequalstr{langid}{chinese}{\printtext{等}}{%
+          \ifnumgreater{\value{liststop}}{1}{\finalandcomma}{}%
+          \printdelim{andothersdelim}\bibstring{andothers}%
+        }%
+      }{}%
+    }
+
 
     % ---------------- 参考文献纯常规字形 ----------------
     % authoryear 默认会对期刊名/会议名/部分题名施加强调字形；
@@ -3556,6 +3580,13 @@
     \DeclareFieldFormat{booktitle}{##1}
     \DeclareFieldFormat{maintitle}{##1}
     \DeclareFieldFormat{series}{##1}
+    % Avoid English 'In:' and 'pp.' labels on Chinese journal references.
+    \renewbibmacro*{in:}{%
+      \iffieldequalstr{langid}{chinese}{}{\printtext{\bibstring{in}\intitlepunct}}%
+    }
+    \DeclareFieldFormat[article]{pages}{%
+      \iffieldequalstr{langid}{chinese}{##1}{\mkpageprefix[bookpagination]{##1}}%
+    }
     \AtEveryBibitem{%
       \normalfont\mdseries
       \clearfield{month}%
@@ -3563,6 +3594,19 @@
     }
     \AtBeginBibliography
       {
+        % GB/T 7714--2025 bibliography uses a separator before 等;
+        % narrative citations use only first surname/name + 等.
+        \renewbibmacro*{name:andothers}{%
+          \ifboolexpr{
+            test {\ifnumequal{\value{listcount}}{\value{liststop}}}
+            and test \ifmorenames
+          }{%
+            \iffieldequalstr{langid}{chinese}{\printtext{，等}}{%
+              \ifnumgreater{\value{liststop}}{1}{\finalandcomma}{}%
+              \printdelim{andothersdelim}\bibstring{andothers}%
+            }%
+          }{}%
+        }
         \renewcommand*{\mkbibbold}[1]{##1}
         \renewcommand*{\mkbibemph}[1]{##1}
         \normalfont\mdseries

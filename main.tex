@@ -2,12 +2,8 @@
 % !BIB program = biber
 % ============================================================
 % 西北农林科技大学 硕博通用研究生学位论文开题报告 LaTeX 模板
-% 封面：依据上传的 Word 开题报告页面重绘
-% 正文：沿用上传的 NWAFU 学位论文模板的主体版式
-% 编译：latexmk -xelatex main.tex（标准自动构建，自动调用 Biber）
+% 编译：XeLaTeX -> Biber -> XeLaTeX -> XeLaTeX
 % ============================================================
-% ---------- 学位层次选择：settings/degree.tex ----------
-% doctor = 博士；master = 硕士
 \input{settings/degree.tex}
 \newif\ifReportDoctor
 \def\ReportDoctorKey{doctor}
@@ -50,15 +46,11 @@
 }
 
 \begin{document}
-
-% ---------- 官方开题报告封面 ----------
 \makeopeningcover
 
-% ---------- 目录 ----------
 \frontmatter
 \tableofcontents
 
-% ---------- 正文 ----------
 \mainmatter
 \setreportheader
 
@@ -66,19 +58,16 @@
 \include{contents/02-content}
 \include{contents/03-scheme}
 \include{contents/04-outcomes}
-\include{contents/05-schedule-budget}
+\include{contents/05-innovations}
+\include{contents/06-social-benefit}
+\include{contents/07-schedule}
+\include{contents/08-budget}
 
-% ---------- 参考文献 ----------
 \bibmatter*
 \setreportheader
 \chapter*{参考文献}
 \addcontentsline{toc}{chapter}{参考文献}
 \markboth{参考文献}{参考文献}
-% 单一参考文献列表：中文在前、英文在后；组间不增加额外间距。
 \printbibliography[heading=none]
-
-% ---------- 可选附录 ----------
-% \appendix
-% \include{contents/appendix}
 
 \end{document}

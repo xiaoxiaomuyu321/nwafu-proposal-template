@@ -53,16 +53,16 @@
 % 用字体文件是否存在来判断，避免 Linux/fontconfig 将 SimSun 等名称错误映射为替代字体。
 \IfFileExists{C:/Windows/Fonts/simsun.ttc}
   {\newCJKfontfamily\CoverSong{SimSun}}
-  {\newCJKfontfamily\CoverSong{Noto Serif CJK SC}}
+  {\newCJKfontfamily\CoverSong[BoldFont=FandolSong-Bold.otf]{FandolSong-Regular.otf}}
 \IfFileExists{C:/Windows/Fonts/simhei.ttf}
   {\newCJKfontfamily\CoverHei{SimHei}}
-  {\newCJKfontfamily\CoverHei{Noto Sans CJK SC}}
+  {\newCJKfontfamily\CoverHei[BoldFont=FandolHei-Bold.otf]{FandolHei-Regular.otf}}
 \IfFileExists{C:/Windows/Fonts/Dengl.ttf}
   {\newCJKfontfamily\CoverDeng{DengXian Light}}
-  {\newCJKfontfamily\CoverDeng{Noto Sans CJK SC}}
+  {\newCJKfontfamily\CoverDeng[BoldFont=FandolHei-Bold.otf]{FandolHei-Regular.otf}}
 \IfFileExists{C:/Windows/Fonts/times.ttf}
   {\newfontfamily\CoverTNR{Times New Roman}}
-  {\newfontfamily\CoverTNR{Liberation Serif}}
+  {\newfontfamily\CoverTNR{lmroman10-regular.otf}}
 
 % ============================================================
 % 封面结构化组件

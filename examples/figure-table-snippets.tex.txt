@@ -1,0 +1,39 @@
+% 以下代码仅为可选排版示例；不被 main.tex 引用，不会出现在空白模板 PDF 中。
+% 使用时复制到合适的 contents/*.tex 中，替换图名、说明和数据。
+
+% 图片插入示例（请将图片文件放入 figs/）
+% \begin{figure}[htbp]
+%   \centering
+%   \includegraphics[width=0.88\textwidth]{your-figure.pdf}
+%   \caption{图题}
+%   \label{fig:your-figure}
+% \end{figure}
+% 正文引用：如图~\ref{fig:your-figure} 所示。
+
+% 时间进度空表（根据实际内容自行添加行）
+% \begin{table}[htbp]
+%   \centering
+%   \caption{工作进度安排}
+%   \label{tab:schedule}
+%   \begin{tabular}{lll}
+%     \toprule
+%     年月 & 工作内容 & 阶段成果 \\
+%     \midrule
+%     & & \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+% 经费预算空表
+% \begin{table}[htbp]
+%   \centering
+%   \caption{经费预算}
+%   \label{tab:budget}
+%   \begin{tabular}{lll}
+%     \toprule
+%     经费项目 & 测算依据 & 金额（万元） \\
+%     \midrule
+%     & & \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
